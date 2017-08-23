@@ -16,21 +16,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import logging
 from typing import List
 
-from api import Address, Transfer
-from api.approval import via_tx_manager, directly
-from api.numeric import Ray
-from api.numeric import Wad
-from api.token import ERC20Token
-from api.transact import Invocation, TxManager
-from keepers.conversion import Conversion
-from keepers.conversion import OasisTakeConversion
-from keepers.conversion import TubBoomConversion, TubBustConversion, TubExitConversion, TubJoinConversion
-from keepers.opportunity import OpportunityFinder, Sequence
-from keepers.sai import SaiKeeper
-from keepers.transfer_formatter import TransferFormatter
+from keeper.api import Address, Transfer
+from keeper.api.approval import via_tx_manager, directly
+from keeper.api.numeric import Ray
+from keeper.api.numeric import Wad
+from keeper.api.transact import Invocation, TxManager
+
+from keeper.api.token import ERC20Token
+from keeper.conversion import Conversion
+from keeper.conversion import OasisTakeConversion
+from keeper.conversion import TubBoomConversion, TubBustConversion, TubExitConversion, TubJoinConversion
+from keeper.opportunity import OpportunityFinder, Sequence
+from keeper.sai import SaiKeeper
+from keeper.transfer_formatter import TransferFormatter
 
 
 class SaiArbitrage(SaiKeeper):
