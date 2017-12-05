@@ -41,34 +41,7 @@ from pymaker.util import chain
 
 
 class ArbitrageKeeper:
-    """Keeper to arbitrage on OasisDEX, `join`, `exit`, `boom` and `bust`.
-
-    Keeper constantly looks for profitable enough arbitrage opportunities
-    and executes them the moment they become available. It can make profit on:
-    - taking orders on OasisDEX (on SAI/SKR, SAI/W-ETH and SKR/W-ETH pairs),
-    - calling `join` and `exit` to exchange between W-ETH and SKR,
-    - calling `boom` and `bust` to exchange between SAI and SKR.
-
-    Opportunities discovered by the keeper are sequences of token exchanges
-    executed using methods listed above. An opportunity can consist of two
-    or three steps, technically it could be more but practically it will never
-    be more than three.
-
-    Steps can be executed sequentially (each one as a separate Etheruem
-    transaction, checking if one has been successful before executing the next
-    one) or in one ago. The latter method requires a `TxManager` contract deployed,
-    its address has to be passed as the `--tx-manager` argument. Also the `TxManager`
-    contract has to be owned by the account the keeper operates from.
-
-    You can find the source code of the `TxManager` here:
-    <https://github.com/reverendus/tx-manager>.
-
-    The base token is the token all arbitrage opportunities will start with.
-    Some amount of this token will be exchanged to some other token(s) and then exchanged
-    back to the base token, aiming to end up with more of it than we started with.
-    The keeper is aware of gas costs and takes a rough estimate of these costs while
-    calculating arbitrage profitability.
-    """
+    """Keeper to arbitrage on OasisDEX, `join`, `exit`, `boom` and `bust`."""
 
     def __init__(self, args, **kwargs):
         parser = argparse.ArgumentParser("arbitrage-keeper")
