@@ -27,7 +27,7 @@ its address has to be passed as the `--tx-manager` argument. Also the `TxManager
 contract has to be owned by the account the keeper operates from.
 
 You can find the source code of the `TxManager` here:
-<https://github.com/reverendus/tx-manager>.
+<https://github.com/makerdao/tx-manager>.
 
 The base token is the token all arbitrage opportunities will start with.
 Some amount of this token will be exchanged to some other token(s) and then exchanged
