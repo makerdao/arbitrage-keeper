@@ -32,6 +32,17 @@ You can find the source code of the `TxManager` here:
 The base token is the token all arbitrage opportunities will start with.
 Some amount of this token will be exchanged to some other token(s) and then exchanged
 back to the base token, aiming to end up with more of it than we started with.
+It implies that some amount of this token has to be provided to the keeper.
+The higher the amount, the more profitable each arbitrage may be. Maximum
+engagement in terms of base token can be set using the `--max-engagement` argument.
+
+It is also beneficial to provide very small amounts of other tokens to the
+keeper as well, mostly because of the rounding issues which may occur on
+subsequent arbitrage steps. Currently the keeper operates on SAI, SKR and W-ETH.
+It means that if we choose SAI as the base token, we should also give it some tiny
+amounts of SKR and W-ETH. It may happen that due to rounding issues these amounts
+will increase or decrease over time. Usually it is no more than 1 Wei increase
+or decrease per one arbitrage opportunity.
 
 The keeper is aware of gas costs and takes a rough estimate of these costs while
 calculating arbitrage profitability. Having said that, this feature still requires
