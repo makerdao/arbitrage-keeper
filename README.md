@@ -32,8 +32,10 @@ You can find the source code of the `TxManager` here:
 The base token is the token all arbitrage opportunities will start with.
 Some amount of this token will be exchanged to some other token(s) and then exchanged
 back to the base token, aiming to end up with more of it than we started with.
+
 The keeper is aware of gas costs and takes a rough estimate of these costs while
-calculating arbitrage profitability.
+calculating arbitrage profitability. Having said that, this feature still requires
+some improvement (see <https://github.com/makerdao/arbitrage-keeper/issues/1>).
 
 <https://chat.makerdao.com/channel/keeper>
 
