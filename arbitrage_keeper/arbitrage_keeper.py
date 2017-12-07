@@ -126,10 +126,10 @@ class ArbitrageKeeper:
         with Web3Lifecycle(self.web3, self.logger) as lifecycle:
             self.lifecycle = lifecycle
             lifecycle.on_startup(self.startup)
+            lifecycle.on_block(self.process_block)
 
     def startup(self):
         self.approve()
-        self.lifecycle.on_block(self.process_block)
 
     def approve(self):
         """Approve all components that need to access our balances"""
