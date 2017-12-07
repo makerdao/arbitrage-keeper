@@ -127,9 +127,9 @@ class ArbitrageKeeper:
             self.lifecycle = lifecycle
             lifecycle.on_startup(self.startup)
 
-    def startup(self, lifecycle):
+    def startup(self):
         self.approve()
-        lifecycle.on_block(self.process_block)
+        self.lifecycle.on_block(self.process_block)
 
     def approve(self):
         """Approve all components that need to access our balances"""
