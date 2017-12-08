@@ -20,13 +20,6 @@ import pytest
 from arbitrage_keeper.transfer_formatter import TransferFormatter
 from pymaker import Address, Transfer
 from pymaker.numeric import Wad
-from pymaker.token import ERC20Token
-
-
-@pytest.fixture(autouse=True)
-def register_tokens(token1, token2):
-    ERC20Token.register_token(token1, 'TK1')
-    ERC20Token.register_token(token2, 'TK2')
 
 
 @pytest.fixture
@@ -59,7 +52,7 @@ def test_should_format_single_transfer(token1, some_address):
     transfer = Transfer(token1, some_address, some_address, Wad.from_number(105))
 
     # expect
-    assert TransferFormatter().format([transfer]) == "105.000000000000000000 TK1"
+    assert TransferFormatter().format([transfer]) == "105.000000000000000000 0x0101010101010101010101010101010101010101"
 
 
 def test_should_format_two_different_tokens(token1, token2, some_address):
@@ -69,7 +62,7 @@ def test_should_format_two_different_tokens(token1, token2, some_address):
 
     # expect
     assert TransferFormatter().format([transfer1, transfer2]) \
-        == "105.000000000000000000 TK1 and 17.000000000000000000 TK2"
+        == "105.000000000000000000 0x0101010101010101010101010101010101010101 and 17.000000000000000000 0x0202020202020202020202020202020202020202"
 
 
 def test_should_format_net_balances(token1, our_address, some_address):
@@ -79,7 +72,7 @@ def test_should_format_net_balances(token1, our_address, some_address):
 
     # expect
     assert TransferFormatter().format_net([transfer1, transfer2], our_address) \
-        == "2.000000000000000000 TK1"
+        == "2.000000000000000000 0x0101010101010101010101010101010101010101"
 
 
 def test_should_format_net_balances_if_multiple_transfers(token1, our_address, some_address):
@@ -90,7 +83,7 @@ def test_should_format_net_balances_if_multiple_transfers(token1, our_address, s
 
     # expect
     assert TransferFormatter().format_net([transfer1, transfer2, transfer3], our_address) \
-        == "5.500000000000000000 TK1"
+        == "5.500000000000000000 0x0101010101010101010101010101010101010101"
 
 
 def test_should_format_net_balances_excluding_alien_transfers(token1, our_address, some_address):
@@ -101,7 +94,7 @@ def test_should_format_net_balances_excluding_alien_transfers(token1, our_addres
 
     # expect
     assert TransferFormatter().format_net([transfer1, transfer2, transfer3], our_address) \
-        == "2.500000000000000000 TK1"
+        == "2.500000000000000000 0x0101010101010101010101010101010101010101"
 
 
 def test_should_format_net_balances_excluding_transfers_between_us(token1, our_address, some_address):
@@ -112,7 +105,7 @@ def test_should_format_net_balances_excluding_transfers_between_us(token1, our_a
 
     # expect
     assert TransferFormatter().format_net([transfer1, transfer2, transfer3], our_address) \
-        == "2.500000000000000000 TK1"
+        == "2.500000000000000000 0x0101010101010101010101010101010101010101"
 
 
 def test_should_format_net_balances_for_more_than_one_token(token1, token2, our_address, some_address):
@@ -124,7 +117,7 @@ def test_should_format_net_balances_for_more_than_one_token(token1, token2, our_
 
     # expect
     assert TransferFormatter().format_net([transfer1, transfer2, transfer3, transfer4], our_address) \
-        == "2.000000000000000000 TK1 and 97.500000000000000000 TK2"
+        == "2.000000000000000000 0x0101010101010101010101010101010101010101 and 97.500000000000000000 0x0202020202020202020202020202020202020202"
 
 
 def test_should_not_include_zeros_in_net_balances(token1, token2, our_address, some_address):
@@ -136,7 +129,7 @@ def test_should_not_include_zeros_in_net_balances(token1, token2, our_address, s
 
     # expect
     assert TransferFormatter().format_net([transfer1, transfer2, transfer3, transfer4], our_address) \
-        == "2.000000000000000000 TK1"
+        == "2.000000000000000000 0x0101010101010101010101010101010101010101"
 
 
 def test_support_iterators(token1, some_address):
@@ -144,6 +137,6 @@ def test_support_iterators(token1, some_address):
     transfer = Transfer(token1, some_address, some_address, Wad.from_number(11.5))
 
     # expect
-    assert TransferFormatter().format(iter([transfer])) == "11.500000000000000000 TK1"
+    assert TransferFormatter().format(iter([transfer])) == "11.500000000000000000 0x0101010101010101010101010101010101010101"
 
 

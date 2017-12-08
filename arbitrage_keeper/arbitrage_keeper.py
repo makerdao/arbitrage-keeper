@@ -114,10 +114,6 @@ class ArbitrageKeeper:
         else:
             self.tx_manager = None
 
-        ERC20Token.register_token(self.tub.skr(), 'SKR')
-        ERC20Token.register_token(self.tub.sai(), 'SAI')
-        ERC20Token.register_token(self.tub.gem(), 'WETH')
-
         _json_log = os.path.abspath(pkg_resources.resource_filename(__name__, f"../logs/arbitrage-keeper_{self.chain}_{self.our_address}.json.log".lower()))
         self.logger = Logger('arbitrage-keeper', self.chain, _json_log, self.arguments.debug, self.arguments.trace)
         Contract.logger = self.logger
@@ -188,12 +184,12 @@ class ArbitrageKeeper:
 
     def print_opportunity(self, opportunity: Sequence):
         """Print the details of the opportunity."""
-        self.logger.info(f"Opportunity with profit={opportunity.profit(self.base_token.address)} {self.base_token.name()},"
-                         f" net_profit={opportunity.net_profit(self.base_token.address)} {self.base_token.name()}")
+        self.logger.info(f"Opportunity with profit={opportunity.profit(self.base_token.address)} {self.base_token.address},"
+                         f" net_profit={opportunity.net_profit(self.base_token.address)} {self.base_token.address}")
         for index, conversion in enumerate(opportunity.steps, start=1):
             self.logger.info(f"Step {index}/{len(opportunity.steps)}:"
-                             f" from {conversion.source_amount} {ERC20Token.token_name_by_address(conversion.source_token)}"
-                             f" to {conversion.target_amount} {ERC20Token.token_name_by_address(conversion.target_token)}"
+                             f" from {conversion.source_amount} {conversion.source_token}"
+                             f" to {conversion.target_amount} {conversion.target_token}"
                              f" using {conversion.name()}")
 
     def execute_opportunity(self, opportunity: Sequence):

@@ -20,13 +20,6 @@ import pytest
 from arbitrage_keeper.conversion import Conversion
 from pymaker import Address
 from pymaker.numeric import Wad, Ray
-from pymaker.token import ERC20Token
-
-
-@pytest.fixture(autouse=True)
-def register_tokens(token1, token2):
-    ERC20Token.register_token(token1, 'TK1')
-    ERC20Token.register_token(token2, 'TK2')
 
 
 @pytest.fixture
@@ -44,7 +37,7 @@ def test_nicely_convert_to_string_without_amounts(token1, token2):
     conversion = Conversion(token1, token2, Ray.from_number(1.01), Wad.from_number(1000), 'met()')
 
     # expect
-    assert str(conversion) == "[TK1 -> TK2 @1.010000000000000000000000000 by met() (max=1000.000000000000000000 TK1)]"
+    assert str(conversion) == "[0x0101010101010101010101010101010101010101 -> 0x0202020202020202020202020202020202020202 @1.010000000000000000000000000 by met() (max=1000.000000000000000000 0x0101010101010101010101010101010101010101)]"
 
 
 def test_nicely_convert_to_string_with_amounts(token1, token2):
@@ -54,5 +47,5 @@ def test_nicely_convert_to_string_with_amounts(token1, token2):
     conversion.target_amount = Wad.from_number(50.5)
 
     # expect
-    assert str(conversion) == "[50.000000000000000000 TK1 -> 50.500000000000000000 TK2 @1.010000000000000000000000000" \
-                              " by met() (max=1000.000000000000000000 TK1)]"
+    assert str(conversion) == "[50.000000000000000000 0x0101010101010101010101010101010101010101 -> 50.500000000000000000 0x0202020202020202020202020202020202020202 @1.010000000000000000000000000" \
+                              " by met() (max=1000.000000000000000000 0x0101010101010101010101010101010101010101)]"

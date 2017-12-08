@@ -19,7 +19,6 @@ from pymaker import Address
 from pymaker.numeric import Wad, Ray
 from pymaker.oasis import SimpleMarket, Order
 from pymaker.sai import Tub, Tap
-from pymaker.token import ERC20Token
 
 
 class Conversion:
@@ -42,11 +41,8 @@ class Conversion:
         def amt(amount: Wad) -> str:
             return f"{amount} " if amount is not None else ""
 
-        source_token_name = ERC20Token.token_name_by_address(self.source_token)
-        target_token_name = ERC20Token.token_name_by_address(self.target_token)
-
-        return f"[{amt(self.source_amount)}{source_token_name} -> {amt(self.target_amount)}{target_token_name} " \
-               f"@{self.rate} by {self.method} (max={self.max_source_amount} {source_token_name})]"
+        return f"[{amt(self.source_amount)}{self.source_token} -> {amt(self.target_amount)}{self.target_token} " \
+               f"@{self.rate} by {self.method} (max={self.max_source_amount} {self.source_token})]"
 
 
 class TubJoinConversion(Conversion):
