@@ -143,8 +143,8 @@ class ArbitrageKeeper:
 
     def otc_orders(self, tokens):
         return [order for order in self.otc.get_orders()
-                if order.sell_which_token in tokens
-                and order.buy_which_token in tokens]
+                if order.pay_token in tokens
+                and order.buy_token in tokens]
 
     def otc_conversions(self, tokens) -> List[Conversion]:
         return list(map(lambda order: OasisTakeConversion(self.otc, order), self.otc_orders(tokens)))

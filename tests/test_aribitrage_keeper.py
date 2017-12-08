@@ -405,7 +405,7 @@ class TestArbitrageKeeper:
 
         # then
         assert len(deployment.otc.get_orders()) == 3
-        assert deployment.otc.get_orders()[0].buy_how_much == Wad.from_number(10)
+        assert deployment.otc.get_orders()[0].buy_amount == Wad.from_number(10)
 
     def test_should_obey_min_profit(self, deployment: Deployment):
         # given
@@ -442,6 +442,6 @@ class TestArbitrageKeeper:
 
         # then
         assert len(deployment.otc.get_orders()) == 3
-        assert deployment.otc.get_orders()[0].buy_how_much == Wad.from_number(100)
-        assert deployment.otc.get_orders()[1].buy_how_much == Wad.from_number(105)
-        assert deployment.otc.get_orders()[2].buy_how_much == Wad.from_number(110)
+        assert deployment.otc.get_orders()[0].buy_amount == Wad.from_number(100)
+        assert deployment.otc.get_orders()[1].buy_amount == Wad.from_number(105)
+        assert deployment.otc.get_orders()[2].buy_amount == Wad.from_number(110)
