@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/makerdao/arbitrage-keeper.svg?branch=master)](https://travis-ci.org/makerdao/arbitrage-keeper)
 [![codecov](https://codecov.io/gh/makerdao/arbitrage-keeper/branch/master/graph/badge.svg)](https://codecov.io/gh/makerdao/arbitrage-keeper)
-[![Maintainability](https://api.codeclimate.com/v1/badges/4cc951530d1aa48ef71f/maintainability)](https://codeclimate.com/github/makerdao/arbitrage-keeper/maintainability)
 
 The _DAI Stablecoin System_ incentivizes external agents, called _keepers_,
 to automate certain operations around the Ethereum blockchain.
