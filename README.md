@@ -83,7 +83,6 @@ usage: arbitrage-keeper [-h] [--rpc-host RPC_HOST] [--rpc-port RPC_PORT]
                         [--gas-price GAS_PRICE] --base-token BASE_TOKEN
                         --min-profit MIN_PROFIT --max-engagement
                         MAX_ENGAGEMENT [--max-errors MAX_ERRORS] [--debug]
-                        [--trace]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -114,7 +113,6 @@ optional arguments:
                         Maximum number of allowed errors before the keeper
                         terminates (default: 100)
   --debug               Enable debug output
-  --trace               Enable trace output
 ```
 
 ## License
