@@ -16,32 +16,31 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import os
+import logging
 import sys
 from typing import List
 
-import pkg_resources
 from web3 import Web3, HTTPProvider
 
 from arbitrage_keeper.conversion import Conversion, OasisTakeConversion
 from arbitrage_keeper.conversion import TubBoomConversion, TubBustConversion, TubExitConversion, TubJoinConversion
 from arbitrage_keeper.opportunity import OpportunityFinder, Sequence
 from arbitrage_keeper.transfer_formatter import TransferFormatter
-from pymaker import Address, Contract
+from pymaker import Address
 from pymaker.approval import via_tx_manager, directly
 from pymaker.gas import DefaultGasPrice, FixedGasPrice
 from pymaker.lifecycle import Web3Lifecycle
-from pymaker.logger import Logger
 from pymaker.numeric import Wad, Ray
 from pymaker.oasis import MatchingMarket
 from pymaker.sai import Tub, Tap
 from pymaker.token import ERC20Token
 from pymaker.transactional import TxManager
-from pymaker.util import chain
 
 
 class ArbitrageKeeper:
     """Keeper to arbitrage on OasisDEX, `join`, `exit`, `boom` and `bust`."""
+
+    logger = logging.getLogger('arbitrage-keeper')
 
     def __init__(self, args, **kwargs):
         parser = argparse.ArgumentParser("arbitrage-keeper")
@@ -85,15 +84,10 @@ class ArbitrageKeeper:
         parser.add_argument("--debug", dest='debug', action='store_true',
                             help="Enable debug output")
 
-        parser.add_argument("--trace", dest='trace', action='store_true',
-                            help="Enable trace output")
-
         self.arguments = parser.parse_args(args)
 
         self.web3 = kwargs['web3'] if 'web3' in kwargs else Web3(HTTPProvider(endpoint_uri=f"http://{self.arguments.rpc_host}:{self.arguments.rpc_port}"))
         self.web3.eth.defaultAccount = self.arguments.eth_from
-
-        self.chain = chain(self.web3)
         self.our_address = Address(self.arguments.eth_from)
         self.otc = MatchingMarket(web3=self.web3, address=Address(self.arguments.oasis_address))
         self.tub = Tub(web3=self.web3, address=Address(self.arguments.tub_address))
@@ -101,6 +95,7 @@ class ArbitrageKeeper:
         self.gem = ERC20Token(web3=self.web3, address=self.tub.gem())
         self.sai = ERC20Token(web3=self.web3, address=self.tub.sai())
         self.skr = ERC20Token(web3=self.web3, address=self.tub.skr())
+
         self.base_token = ERC20Token(web3=self.web3, address=Address(self.arguments.base_token))
         self.min_profit = Wad.from_number(self.arguments.min_profit)
         self.max_engagement = Wad.from_number(self.arguments.max_engagement)
@@ -114,12 +109,11 @@ class ArbitrageKeeper:
         else:
             self.tx_manager = None
 
-        _json_log = os.path.abspath(pkg_resources.resource_filename(__name__, f"../logs/arbitrage-keeper_{self.chain}_{self.our_address}.json.log".lower()))
-        self.logger = Logger('arbitrage-keeper', self.chain, _json_log, self.arguments.debug, self.arguments.trace)
-        Contract.logger = self.logger
+        logging.basicConfig(format='%(asctime)-15s %(levelname)-8s %(message)s',
+                            level=(logging.DEBUG if self.arguments.debug else logging.INFO))
 
     def main(self):
-        with Web3Lifecycle(self.web3, self.logger) as lifecycle:
+        with Web3Lifecycle(self.web3) as lifecycle:
             self.lifecycle = lifecycle
             lifecycle.on_startup(self.startup)
             lifecycle.on_block(self.process_block)
