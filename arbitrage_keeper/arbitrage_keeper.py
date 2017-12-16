@@ -123,11 +123,12 @@ class ArbitrageKeeper:
 
     def approve(self):
         """Approve all components that need to access our balances"""
-        approval_method = via_tx_manager(self.tx_manager) if self.tx_manager else directly()
+        approval_method = via_tx_manager(self.tx_manager, gas_price=self.gas_price()) if self.tx_manager \
+            else directly(gas_price=self.gas_price())
         self.tub.approve(approval_method)
         self.otc.approve([self.gem, self.sai, self.skr], approval_method)
         if self.tx_manager:
-            self.tx_manager.approve([self.gem, self.sai, self.skr], directly())
+            self.tx_manager.approve([self.gem, self.sai, self.skr], directly(gas_price=self.gas_price()))
 
     def tub_conversions(self) -> List[Conversion]:
         return [TubJoinConversion(self.tub),
