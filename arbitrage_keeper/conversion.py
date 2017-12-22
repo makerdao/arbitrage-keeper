@@ -58,7 +58,7 @@ class TubJoinConversion(Conversion):
         return f"tub.join('{self.source_amount}')"
 
     def transact(self):
-        return self.tub.join(self.source_amount) #TODO NO!!!!
+        return self.tub.join(self.target_amount)
 
 
 class TubExitConversion(Conversion):
