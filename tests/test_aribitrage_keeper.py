@@ -134,7 +134,7 @@ class TestArbitrageKeeper:
                                  web3=deployment.web3)
 
         DSValue(web3=deployment.web3, address=deployment.tub.pip()).poke_with_int(Wad.from_number(500).value).transact()
-        deployment.tap.jump(Wad.from_number(1.05)).transact()
+        deployment.tap.mold_gap(Wad.from_number(1.05)).transact()
 
         # when
         keeper.approve()
@@ -155,9 +155,9 @@ class TestArbitrageKeeper:
 
         # and
         DSValue(web3=deployment.web3, address=deployment.tub.pip()).poke_with_int(Wad.from_number(500).value).transact()
-        deployment.tub.jar_jump(Wad.from_number(1.05)).transact()
+        deployment.tub.mold_gap(Wad.from_number(1.05)).transact()
         deployment.tub.join(Wad.from_number(1000)).transact()
-        deployment.tap.jump(Wad.from_number(1.05)).transact()
+        deployment.tap.mold_gap(Wad.from_number(1.05)).transact()
 
         # and
         deployment.sai.mint(Wad.from_number(1000)).transact()
@@ -201,9 +201,9 @@ class TestArbitrageKeeper:
 
         # and
         DSValue(web3=deployment.web3, address=deployment.tub.pip()).poke_with_int(Wad.from_number(500).value).transact()
-        deployment.tub.jar_jump(Wad.from_number(1.05)).transact()
+        deployment.tub.mold_gap(Wad.from_number(1.05)).transact()
         deployment.tub.join(Wad.from_number(1000)).transact()
-        deployment.tap.jump(Wad.from_number(1.05)).transact()
+        deployment.tap.mold_gap(Wad.from_number(1.05)).transact()
 
         # and
         deployment.sai.mint(Wad.from_number(1000)).transact()
@@ -323,9 +323,9 @@ class TestArbitrageKeeper:
         # and
         # [we generate some bad debt available for `bust`]
         DSValue(web3=deployment.web3, address=deployment.tub.pip()).poke_with_int(Wad.from_number(500).value).transact()
-        deployment.tub.cork(Wad.from_number(1000000)).transact()
-        deployment.tub.cuff(Ray.from_number(2.0)).transact()
-        deployment.tub.chop(Ray.from_number(2.0)).transact()
+        deployment.tub.mold_cap(Wad.from_number(1000000)).transact()
+        deployment.tub.mold_mat(Ray.from_number(2.0)).transact()
+        deployment.tub.mold_axe(Ray.from_number(2.0)).transact()
         deployment.gem.mint(Wad.from_number(100)).transact()
         deployment.tub.join(Wad.from_number(100)).transact()
         deployment.tub.open().transact()
@@ -339,9 +339,9 @@ class TestArbitrageKeeper:
 
         # and
         # [we add a boom/bust spread to make calculations a bit more difficult]
-        deployment.tap.jump(Wad.from_number(0.95)).transact()
-        assert deployment.tap.ask() == Wad.from_number(475.0)
-        assert deployment.tap.bid() == Wad.from_number(525.0)
+        deployment.tap.mold_gap(Wad.from_number(0.95)).transact()
+        assert deployment.tap.ask(Wad.from_number(1)) == Wad.from_number(475.0)
+        assert deployment.tap.bid(Wad.from_number(1)) == Wad.from_number(525.0)
 
         # and
         # [we have some SKR to cover rounding errors]
@@ -382,9 +382,9 @@ class TestArbitrageKeeper:
 
         # and
         DSValue(web3=deployment.web3, address=deployment.tub.pip()).poke_with_int(Wad.from_number(500).value).transact()
-        deployment.tub.jar_jump(Wad.from_number(1.05)).transact()
+        deployment.tub.mold_gap(Wad.from_number(1.05)).transact()
         deployment.tub.join(Wad.from_number(1000)).transact()
-        deployment.tap.jump(Wad.from_number(1.05)).transact()
+        deployment.tap.mold_gap(Wad.from_number(1.05)).transact()
 
         # and
         deployment.sai.mint(Wad.from_number(1000)).transact()
@@ -419,9 +419,9 @@ class TestArbitrageKeeper:
 
         # and
         DSValue(web3=deployment.web3, address=deployment.tub.pip()).poke_with_int(Wad.from_number(500).value).transact()
-        deployment.tub.jar_jump(Wad.from_number(1.05)).transact()
+        deployment.tub.mold_gap(Wad.from_number(1.05)).transact()
         deployment.tub.join(Wad.from_number(1000)).transact()
-        deployment.tap.jump(Wad.from_number(1.05)).transact()
+        deployment.tap.mold_gap(Wad.from_number(1.05)).transact()
 
         # and
         deployment.sai.mint(Wad.from_number(1000)).transact()

@@ -50,7 +50,7 @@ class TubJoinConversion(Conversion):
         self.tub = tub
         super().__init__(source_token=self.tub.gem(),
                          target_token=self.tub.skr(),
-                         rate=(Ray.from_number(1) / tub.jar_ask()),
+                         rate=(Ray.from_number(1) / Ray(tub.ask(Wad.from_number(1)))),
                          max_source_amount=Wad.from_number(1000000),  #1 mio ETH = infinity ;)
                          method="tub.join()")
 
@@ -58,7 +58,7 @@ class TubJoinConversion(Conversion):
         return f"tub.join('{self.source_amount}')"
 
     def transact(self):
-        return self.tub.join(self.source_amount)
+        return self.tub.join(self.source_amount) #TODO NO!!!!
 
 
 class TubExitConversion(Conversion):
@@ -66,7 +66,7 @@ class TubExitConversion(Conversion):
         self.tub = tub
         super().__init__(source_token=self.tub.skr(),
                          target_token=self.tub.gem(),
-                         rate=tub.jar_bid(),
+                         rate=Ray(tub.bid(Wad.from_number(1))),
                          max_source_amount=Wad.from_number(1000000),  #1 mio SKR = infinity ;)
                          method="tub.exit()")
 
@@ -83,7 +83,7 @@ class TubBoomConversion(Conversion):
         self.tap = tap
         super().__init__(source_token=self.tub.skr(),
                          target_token=self.tub.sai(),
-                         rate=Ray(tap.bid()),
+                         rate=Ray(tap.bid(Wad.from_number(1))),
                          max_source_amount=self.boomable_amount_in_skr(tap),
                          method="tub.boom()")
 
@@ -94,7 +94,7 @@ class TubBoomConversion(Conversion):
 
     def boomable_amount_in_skr(self, tap: Tap):
         # we deduct 0.000001 in order to avoid rounding errors
-        return Wad.max(Wad(self.boomable_amount_in_sai(tap) / (tap.bid())) - Wad.from_number(0.000001), Wad.from_number(0))
+        return Wad.max(Wad(self.boomable_amount_in_sai(tap) / (tap.bid(Wad.from_number(1)))) - Wad.from_number(0.000001), Wad.from_number(0))
 
     def name(self):
         return f"tub.boom('{self.source_amount}')"
@@ -109,7 +109,7 @@ class TubBustConversion(Conversion):
         self.tap = tap
         super().__init__(source_token=self.tub.sai(),
                          target_token=self.tub.skr(),
-                         rate=(Ray.from_number(1) / Ray(tap.ask())),
+                         rate=(Ray.from_number(1) / Ray(tap.ask(Wad.from_number(1)))),
                          max_source_amount=self.bustable_amount_in_sai(tap),
                          method="tub.bust()")
 
@@ -121,7 +121,7 @@ class TubBustConversion(Conversion):
         bustable_woe = tap.woe() - tap.joy() - Wad.from_number(10)
 
         # we deduct 0.000001 in order to avoid rounding errors
-        bustable_fog = tap.fog() * tap.ask() - Wad.from_number(0.000001)
+        bustable_fog = tap.fog() * tap.ask(Wad.from_number(1)) - Wad.from_number(0.000001)
 
         return Wad.max(bustable_woe, bustable_fog, Wad.from_number(0))
 
