@@ -10,9 +10,9 @@ to automate certain operations around the Ethereum blockchain.
 
 Keeper constantly looks for profitable enough arbitrage opportunities
 and executes them the moment they become available. It can make profit on:
-- taking orders on OasisDEX (on SAI/SKR, SAI/W-ETH and SKR/W-ETH pairs),
-- calling `join` and `exit` to exchange between W-ETH and SKR,
-- calling `boom` and `bust` to exchange between SAI and SKR.
+- taking orders on OasisDEX (on DAI/PETH, DAI/W-ETH and PETH/W-ETH pairs),
+- calling `join` and `exit` to exchange between W-ETH and PETH,
+- calling `boom` and `bust` to exchange between DAI and PETH.
 
 Opportunities discovered by the keeper are sequences of token exchanges
 executed using methods listed above. An opportunity can consist of two
@@ -37,9 +37,9 @@ engagement in terms of base token can be set using the `--max-engagement` argume
 
 It is also beneficial to provide very small amounts of other tokens to the
 keeper as well, mostly because of the rounding issues which may occur on
-subsequent arbitrage steps. Currently the keeper operates on SAI, SKR and W-ETH.
-It means that if we choose SAI as the base token, we should also give it some tiny
-amounts of SKR and W-ETH. It may happen that due to rounding issues these amounts
+subsequent arbitrage steps. Currently the keeper operates on DAI, PETH and W-ETH.
+It means that if we choose DAI as the base token, we should also give it some tiny
+amounts of PETH and W-ETH. It may happen that due to rounding issues these amounts
 will increase or decrease over time. Usually it is no more than 1 Wei increase
 or decrease per one arbitrage opportunity.
 
