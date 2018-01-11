@@ -66,17 +66,20 @@ For some known macOS issues see the [pymaker](https://github.com/makerdao/pymake
 
 ```
 usage: arbitrage-keeper [-h] [--rpc-host RPC_HOST] [--rpc-port RPC_PORT]
-                        --eth-from ETH_FROM --tub-address TUB_ADDRESS
-                        --tap-address TAP_ADDRESS --oasis-address
-                        OASIS_ADDRESS [--tx-manager TX_MANAGER]
-                        [--gas-price GAS_PRICE] --base-token BASE_TOKEN
-                        --min-profit MIN_PROFIT --max-engagement
-                        MAX_ENGAGEMENT [--max-errors MAX_ERRORS] [--debug]
+                        [--rpc-timeout RPC_TIMEOUT] --eth-from ETH_FROM
+                        --tub-address TUB_ADDRESS --tap-address TAP_ADDRESS
+                        --oasis-address OASIS_ADDRESS
+                        [--tx-manager TX_MANAGER] [--gas-price GAS_PRICE]
+                        --base-token BASE_TOKEN --min-profit MIN_PROFIT
+                        --max-engagement MAX_ENGAGEMENT
+                        [--max-errors MAX_ERRORS] [--debug]
 
 optional arguments:
   -h, --help            show this help message and exit
   --rpc-host RPC_HOST   JSON-RPC host (default: `localhost')
   --rpc-port RPC_PORT   JSON-RPC port (default: `8545')
+  --rpc-timeout RPC_TIMEOUT
+                        JSON-RPC timeout (in seconds, default: 10)
   --eth-from ETH_FROM   Ethereum account from which to send transactions
   --tub-address TUB_ADDRESS
                         Ethereum address of the Tub contract
