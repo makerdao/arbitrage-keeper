@@ -47,6 +47,19 @@ The keeper is aware of gas costs and takes a rough estimate of these costs while
 calculating arbitrage profitability. Having said that, this feature still requires
 some improvement (see <https://github.com/makerdao/arbitrage-keeper/issues/1>).
 
+In general, this keeper is already a bit dated. Especially OasisDEX order enumeration
+can turn out to be really slow considering the current number of both open and historical
+orders there. There is some caching mechanism in place, but it is a bit flawed as it
+doesn't handle chain reorgs correctly. Having said that, `arbitrage-keeper` provides
+valuable source of information where to look for arbitrage opportunities in the Dai system
+and how to exploit them. It also demonstrates how to do atomic risk-free arbitrage
+using the [tx-manager](https://github.com/makerdao/tx-manager) contract.
+
+The `arbitrage-keeper` will not work with multicollateral Dai, mainly because
+`boom` and `bust` actions will not be present in it anymore. Instead of that,
+surplus and bad debt will be liquidated via auctions, supported by the new
+[auction-keeper](https://github.com/makerdao/auction-keeper).
+
 <https://chat.makerdao.com/channel/keeper>
 
 ## Installation
