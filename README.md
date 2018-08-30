@@ -43,10 +43,6 @@ amounts of PETH and W-ETH. It may happen that due to rounding issues these amoun
 will increase or decrease over time. Usually it is no more than 1 Wei increase
 or decrease per one arbitrage opportunity.
 
-The keeper is aware of gas costs and takes a rough estimate of these costs while
-calculating arbitrage profitability. Having said that, this feature still requires
-some improvement (see <https://github.com/makerdao/arbitrage-keeper/issues/1>).
-
 In general, this keeper is already a bit dated. Especially OasisDEX order enumeration
 can turn out to be really slow considering the current number of both open and historical
 orders there. There is some caching mechanism in place, but it is a bit flawed as it
