@@ -29,7 +29,7 @@ from arbitrage_keeper.transfer_formatter import TransferFormatter
 from pymaker import Address
 from pymaker.approval import via_tx_manager, directly
 from pymaker.gas import DefaultGasPrice, FixedGasPrice
-from pymaker.lifecycle import Web3Lifecycle
+from pymaker.lifecycle import Lifecycle
 from pymaker.numeric import Wad, Ray
 from pymaker.oasis import MatchingMarket
 from pymaker.sai import Tub, Tap
@@ -117,7 +117,7 @@ class ArbitrageKeeper:
                             level=(logging.DEBUG if self.arguments.debug else logging.INFO))
 
     def main(self):
-        with Web3Lifecycle(self.web3) as lifecycle:
+        with Lifecycle(self.web3) as lifecycle:
             self.lifecycle = lifecycle
             lifecycle.on_startup(self.startup)
             lifecycle.on_block(self.process_block)
