@@ -352,9 +352,8 @@ class TestArbitrageKeeper:
         # [now lets pretend somebody else placed an order on OASIS offering 15250 SAI for these 30 SKR]
         # [this will be an arbitrage opportunity which can make the bot earn 1000 SAI]
         deployment.sai.mint(Wad.from_number(15250)).transact()
-        deployment.otc.approve([deployment.sai, deployment.skr], directly())
-        deployment.otc.add_token_pair_whitelist(deployment.skr.address, deployment.sai.address).transact()
-        deployment.otc.make(deployment.sai.address, Wad.from_number(15250), deployment.skr.address, Wad.from_number(30)).transact()
+        deployment.otc.approve([deployment.sai, deployment.gem], directly())
+        deployment.otc.make(deployment.sai.address, Wad.from_number(15250), deployment.gem.address, Wad.from_number(30)).transact()
         assert len(deployment.otc.get_orders()) == 1
 
         # when
