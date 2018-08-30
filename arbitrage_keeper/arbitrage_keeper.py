@@ -130,6 +130,7 @@ class ArbitrageKeeper:
         approval_method = via_tx_manager(self.tx_manager, gas_price=self.gas_price()) if self.tx_manager \
             else directly(gas_price=self.gas_price())
         self.tub.approve(approval_method)
+        self.tap.approve(approval_method)
         self.otc.approve([self.gem, self.sai, self.skr], approval_method)
         if self.tx_manager:
             self.tx_manager.approve([self.gem, self.sai, self.skr], directly(gas_price=self.gas_price()))
