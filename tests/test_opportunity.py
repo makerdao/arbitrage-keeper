@@ -43,7 +43,7 @@ class TestSequence:
         # then
         assert sequence.total_rate() == Ray.from_number(1.0302)
 
-    def test_should_calculate_profit_and_net_profit(self, token1, token2):
+    def test_should_calculate_profit(self, token1, token2):
         # given
         step1 = Conversion(token1, token2, Ray.from_number(1.01), Wad.from_number(1000), 'met1')
         step1.source_amount = Wad.from_number(100)
@@ -58,19 +58,6 @@ class TestSequence:
         # then
         assert sequence.profit(token1) == Wad.from_number(3.02)
         assert sequence.profit(token2) == Wad.from_number(0)
-        assert sequence.net_profit(token1) == sequence.profit(token1) - sequence.tx_costs()
-        assert sequence.net_profit(token2) == sequence.profit(token2) - sequence.tx_costs()
-
-    def test_should_calculate_tx_costs(self, token1):
-        # expect the tx_costs to be non negative and to increase with the number of steps
-        steps = []
-        prev_tx_costs = Wad.from_number(0)
-        for i in range(10):
-            steps.append(Conversion(token1, token1, Ray(0), Wad(0), 'met'))
-            opportunity = Sequence(steps)
-            tx_costs = opportunity.tx_costs()
-            assert(tx_costs > prev_tx_costs)
-            prev_tx_costs = tx_costs
 
 
 class TestOpportunityFinder:

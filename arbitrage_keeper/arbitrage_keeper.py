@@ -174,8 +174,8 @@ class ArbitrageKeeper:
         opportunity_finder = OpportunityFinder(conversions=self.all_conversions())
         opportunities = opportunity_finder.find_opportunities(self.base_token.address, entry_amount)
         opportunities = filter(lambda op: op.total_rate() > Ray.from_number(1.000001), opportunities)
-        opportunities = filter(lambda op: op.net_profit(self.base_token.address) > self.min_profit, opportunities)
-        opportunities = sorted(opportunities, key=lambda op: op.net_profit(self.base_token.address), reverse=True)
+        opportunities = filter(lambda op: op.profit(self.base_token.address) > self.min_profit, opportunities)
+        opportunities = sorted(opportunities, key=lambda op: op.profit(self.base_token.address), reverse=True)
         return opportunities
 
     def best_opportunity(self, opportunities: List[Sequence]):
@@ -185,7 +185,7 @@ class ArbitrageKeeper:
     def print_opportunity(self, opportunity: Sequence):
         """Print the details of the opportunity."""
         self.logger.info(f"Opportunity with profit={opportunity.profit(self.base_token.address)} {self.base_token.address},"
-                         f" net_profit={opportunity.net_profit(self.base_token.address)} {self.base_token.address}")
+                         f" profit={opportunity.profit(self.base_token.address)} {self.base_token.address}")
         for index, conversion in enumerate(opportunity.steps, start=1):
             self.logger.info(f"Step {index}/{len(opportunity.steps)}:"
                              f" from {conversion.source_amount} {conversion.source_token}"

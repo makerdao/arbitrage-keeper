@@ -50,13 +50,6 @@ class Sequence:
         # TODO transaction costs are still in a fixed currency (SAI) here
         return Wad.from_number(0.25) * Wad.from_number(len(self.steps))
 
-    def net_profit(self, token: Address) -> Wad:
-        """Calculates the expected net profit brought by executing this sequence (in token `token`).
-
-        net_profit = profit - tx_costs
-        """
-        return self.profit(token) - self.tx_costs()
-
     def set_amounts(self, initial_amount: Wad):
         def recalculate_previous_amounts(from_step_id: int):
             for id in range(from_step_id, -1, -1):
