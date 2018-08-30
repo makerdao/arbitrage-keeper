@@ -66,6 +66,9 @@ class ArbitrageKeeper:
         parser.add_argument("--oasis-address", type=str, required=True,
                             help="Ethereum address of the OasisDEX contract")
 
+        parser.add_argument("--oasis-support-address", type=str, required=False,
+                            help="Ethereum address of the OasisDEX support contract")
+
         parser.add_argument("--tx-manager", type=str,
                             help="Ethereum address of the TxManager contract to use for multi-step arbitrage")
 
@@ -93,12 +96,16 @@ class ArbitrageKeeper:
                                                                               request_kwargs={"timeout": self.arguments.rpc_timeout}))
         self.web3.eth.defaultAccount = self.arguments.eth_from
         self.our_address = Address(self.arguments.eth_from)
-        self.otc = MatchingMarket(web3=self.web3, address=Address(self.arguments.oasis_address))
         self.tub = Tub(web3=self.web3, address=Address(self.arguments.tub_address))
         self.tap = Tap(web3=self.web3, address=Address(self.arguments.tap_address))
         self.gem = ERC20Token(web3=self.web3, address=self.tub.gem())
         self.sai = ERC20Token(web3=self.web3, address=self.tub.sai())
         self.skr = ERC20Token(web3=self.web3, address=self.tub.skr())
+
+        self.otc = MatchingMarket(web3=self.web3,
+                                  address=Address(self.arguments.oasis_address),
+                                  support_address=Address(self.arguments.oasis_support_address)
+                                    if self.arguments.oasis_support_address is not None else None)
 
         self.base_token = ERC20Token(web3=self.web3, address=Address(self.arguments.base_token))
         self.min_profit = Wad.from_number(self.arguments.min_profit)
