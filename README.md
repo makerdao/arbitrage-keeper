@@ -83,6 +83,7 @@ usage: arbitrage-keeper [-h] [--rpc-host RPC_HOST] [--rpc-port RPC_PORT]
                         [--rpc-timeout RPC_TIMEOUT] --eth-from ETH_FROM
                         --tub-address TUB_ADDRESS --tap-address TAP_ADDRESS
                         --oasis-address OASIS_ADDRESS
+                        [--oasis-support-address OASIS_SUPPORT_ADDRESS]
                         [--tx-manager TX_MANAGER] [--gas-price GAS_PRICE]
                         --base-token BASE_TOKEN --min-profit MIN_PROFIT
                         --max-engagement MAX_ENGAGEMENT
@@ -101,6 +102,8 @@ optional arguments:
                         Ethereum address of the Tap contract
   --oasis-address OASIS_ADDRESS
                         Ethereum address of the OasisDEX contract
+  --oasis-support-address OASIS_SUPPORT_ADDRESS
+                        Ethereum address of the OasisDEX support contract
   --tx-manager TX_MANAGER
                         Ethereum address of the TxManager contract to use for
                         multi-step arbitrage
