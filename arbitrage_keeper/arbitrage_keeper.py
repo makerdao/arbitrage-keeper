@@ -142,9 +142,14 @@ class ArbitrageKeeper:
                 TubBustConversion(self.tub, self.tap)]
 
     def otc_orders(self, tokens):
-        return [order for order in self.otc.get_orders()
-                if order.pay_token in tokens
-                and order.buy_token in tokens]
+        orders = []
+
+        for token1 in tokens:
+            for token2 in tokens:
+                if token1 != token2:
+                    orders = orders + self.otc.get_orders(token1, token2)
+
+        return orders
 
     def otc_conversions(self, tokens) -> List[Conversion]:
         return list(map(lambda order: OasisTakeConversion(self.otc, order), self.otc_orders(tokens)))
