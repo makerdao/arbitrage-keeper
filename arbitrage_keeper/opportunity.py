@@ -45,11 +45,6 @@ class Sequence:
         return sum(map(lambda s: s.target_amount, filter(lambda s: s.target_token == token, self.steps)), Wad(0)) \
                - sum(map(lambda s: s.source_amount, filter(lambda s: s.source_token == token, self.steps)), Wad(0))
 
-    def tx_costs(self) -> Wad:
-        """Calculates the transaction costs that this sequence will take to execute."""
-        # TODO transaction costs are still in a fixed currency (SAI) here
-        return Wad.from_number(0.25) * Wad.from_number(len(self.steps))
-
     def set_amounts(self, initial_amount: Wad):
         def recalculate_previous_amounts(from_step_id: int):
             for id in range(from_step_id, -1, -1):
