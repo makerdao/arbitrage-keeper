@@ -245,7 +245,7 @@ class ArbitrageKeeper:
             else:
                 self.errors += 1
                 return
-        self.logger.info(f"The profit we made is {TransferFormatter().format_net(all_transfers, self.our_address, self.token_name)}.")
+        self.logger.info(f"The profit we made is {TransferFormatter().format_net(all_transfers, self.our_address, self.token_name)}")
 
     def execute_opportunity_in_one_transaction(self, opportunity: Sequence):
         """Execute the opportunity in one transaction, using the `tx_manager`."""
@@ -253,7 +253,7 @@ class ArbitrageKeeper:
         invocations = list(map(lambda step: step.transact().invocation(), opportunity.steps))
         receipt = self.tx_manager.execute(tokens, invocations).transact(gas_price=self.gas_price())
         if receipt:
-            self.logger.info(f"The profit we made is {TransferFormatter().format_net(receipt.transfers, self.our_address, self.token_name)}.")
+            self.logger.info(f"The profit we made is {TransferFormatter().format_net(receipt.transfers, self.our_address, self.token_name)}")
         else:
             self.errors += 1
 
