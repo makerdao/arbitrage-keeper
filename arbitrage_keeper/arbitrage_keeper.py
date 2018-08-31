@@ -200,10 +200,9 @@ class ArbitrageKeeper:
                          f" profit={opportunity.profit(self.base_token.address)} {self.base_token.address}")
 
         for index, conversion in enumerate(opportunity.steps, start=1):
-            self.logger.info(f"Step {index}/{len(opportunity.steps)}:"
-                             f" from {conversion.source_amount} {conversion.source_token}"
-                             f" to {conversion.target_amount} {conversion.target_token}"
-                             f" using {conversion.name()}")
+            self.logger.info(f"Step {index}/{len(opportunity.steps)}: {conversion.name()}"
+                             f" (from {conversion.source_amount} {conversion.source_token}"
+                             f" to {conversion.target_amount} {conversion.target_token})")
 
     def execute_opportunity(self, opportunity: Sequence):
         """Execute the opportunity either in one Ethereum transaction or step-by-step.
