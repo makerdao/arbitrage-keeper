@@ -155,7 +155,7 @@ class OasisTakeConversion(Conversion):
                          method=f"opc.take({self.order.order_id})")
 
     def id(self):
-        return f"otc.bust({self.order.order_id})"
+        return f"otc.take({self.order.order_id})"
 
     def name(self):
         return f"otc.take({self.order.order_id}, '{self.quantity()}')"
