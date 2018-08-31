@@ -18,6 +18,7 @@
 import pytest
 
 from arbitrage_keeper.arbitrage_keeper import ArbitrageKeeper
+from pymaker import Address
 from pymaker.approval import directly
 from pymaker.deployment import Deployment
 from pymaker.feed import DSValue
@@ -351,9 +352,12 @@ class TestArbitrageKeeper:
         # [we should now have 30 SKR available for 14250 SAI on `bust`]
         # [now lets pretend somebody else placed an order on OASIS offering 15250 SAI for these 30 SKR]
         # [this will be an arbitrage opportunity which can make the bot earn 1000 SAI]
+        second_address = Address(deployment.web3.eth.accounts[1])
+
         deployment.sai.mint(Wad.from_number(15250)).transact()
-        deployment.otc.approve([deployment.sai, deployment.gem], directly())
-        deployment.otc.make(deployment.sai.address, Wad.from_number(15250), deployment.gem.address, Wad.from_number(30)).transact()
+        deployment.sai.transfer(second_address, Wad.from_number(15250)).transact()
+        deployment.otc.approve([deployment.sai, deployment.gem], directly(from_address=second_address))
+        deployment.otc.make(deployment.sai.address, Wad.from_number(15250), deployment.gem.address, Wad.from_number(30)).transact(from_address=second_address)
         assert len(deployment.otc.get_orders()) == 1
 
         # when
