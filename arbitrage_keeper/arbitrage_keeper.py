@@ -142,6 +142,19 @@ class ArbitrageKeeper:
         if self.tx_manager:
             self.tx_manager.approve([self.gem, self.sai, self.skr], directly(gas_price=self.gas_price()))
 
+    def token_name(self, address: Address) -> str:
+        if address == self.sai.address:
+            return "DAI"
+
+        elif address == self.gem.address:
+            return "WETH"
+
+        elif address == self.skr.address:
+            return "PETH"
+
+        else:
+            return str(address)
+
     def tub_conversions(self) -> List[Conversion]:
         return [TubJoinConversion(self.tub),
                 TubExitConversion(self.tub),
@@ -197,12 +210,12 @@ class ArbitrageKeeper:
     def print_opportunity(self, opportunity: Sequence):
         """Print the details of the opportunity."""
         self.logger.info(f"Opportunity with id={opportunity.id()},"
-                         f" profit={opportunity.profit(self.base_token.address)} {self.base_token.address}")
+                         f" profit={opportunity.profit(self.base_token.address)} {self.token_name(self.base_token.address)}")
 
         for index, conversion in enumerate(opportunity.steps, start=1):
             self.logger.info(f"Step {index}/{len(opportunity.steps)}: {conversion.name()}"
-                             f" (from {conversion.source_amount} {conversion.source_token}"
-                             f" to {conversion.target_amount} {conversion.target_token})")
+                             f" (from {conversion.source_amount} {self.token_name(conversion.source_token)}"
+                             f" to {conversion.target_amount} {self.token_name(conversion.target_token)})")
 
     def execute_opportunity(self, opportunity: Sequence):
         """Execute the opportunity either in one Ethereum transaction or step-by-step.
@@ -226,13 +239,13 @@ class ArbitrageKeeper:
             receipt = step.transact().transact(gas_price=self.gas_price())
             if receipt:
                 all_transfers += receipt.transfers
-                outgoing = TransferFormatter().format(filter(outgoing_transfer(self.our_address), receipt.transfers))
-                incoming = TransferFormatter().format(filter(incoming_transfer(self.our_address), receipt.transfers))
+                outgoing = TransferFormatter().format(filter(outgoing_transfer(self.our_address), receipt.transfers), self.token_name)
+                incoming = TransferFormatter().format(filter(incoming_transfer(self.our_address), receipt.transfers), self.token_name)
                 self.logger.info(f"Exchanged {outgoing} to {incoming}")
             else:
                 self.errors += 1
                 return
-        self.logger.info(f"The profit we made is {TransferFormatter().format_net(all_transfers, self.our_address)}.")
+        self.logger.info(f"The profit we made is {TransferFormatter().format_net(all_transfers, self.our_address, self.token_name)}.")
 
     def execute_opportunity_in_one_transaction(self, opportunity: Sequence):
         """Execute the opportunity in one transaction, using the `tx_manager`."""
@@ -240,7 +253,7 @@ class ArbitrageKeeper:
         invocations = list(map(lambda step: step.transact().invocation(), opportunity.steps))
         receipt = self.tx_manager.execute(tokens, invocations).transact(gas_price=self.gas_price())
         if receipt:
-            self.logger.info(f"The profit we made is {TransferFormatter().format_net(receipt.transfers, self.our_address)}.")
+            self.logger.info(f"The profit we made is {TransferFormatter().format_net(receipt.transfers, self.our_address, self.token_name)}.")
         else:
             self.errors += 1
 

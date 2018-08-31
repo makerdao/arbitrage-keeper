@@ -28,11 +28,11 @@ class TransferFormatter:
     def _sum(self, wads):
         return reduce(Wad.__add__, wads, Wad.from_number(0))
 
-    def _sum_by_token(self, transfers: list):
+    def _sum_by_token(self, transfers: list, token_name_function):
         transfers.sort(key=lambda transfer: transfer.token_address, reverse=False)
         for token_address, transfers in itertools.groupby(transfers, lambda transfer: transfer.token_address):
             total = self._sum(map(lambda transfer: transfer.value, transfers))
-            yield f"{total} {token_address}"
+            yield f"{total} {token_name_function(token_address)}"
 
     def _net_value(self, transfer: Transfer, our_address: Address):
         if transfer.from_address == our_address and transfer.to_address == our_address:
@@ -44,18 +44,18 @@ class TransferFormatter:
         else:
             return Wad(0)
 
-    def _net_by_token(self, transfers: list, our_address: Address):
+    def _net_by_token(self, transfers: list, our_address: Address, token_name_function):
         transfers.sort(key=lambda transfer: transfer.token_address, reverse=False)
         for token_address, transfers in itertools.groupby(transfers, lambda transfer: transfer.token_address):
             total = self._sum(map(lambda transfer: self._net_value(transfer, our_address), transfers))
             if total != Wad(0):
-                yield f"{total} {token_address}"
+                yield f"{total} {token_name_function(token_address)}"
 
     def _join_with_and(self, iterable: Iterable):
         return " and ".join(iterable)
 
-    def format(self, transfers: Iterable):
-        return self._join_with_and(self._sum_by_token(list(transfers)))
+    def format(self, transfers: Iterable, token_name_function):
+        return self._join_with_and(self._sum_by_token(list(transfers), token_name_function))
 
-    def format_net(self, transfers: Iterable, our_address: Address):
-        return self._join_with_and(self._net_by_token(list(transfers), our_address))
+    def format_net(self, transfers: Iterable, our_address: Address, token_name_function):
+        return self._join_with_and(self._net_by_token(list(transfers), our_address, token_name_function))
