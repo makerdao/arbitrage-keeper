@@ -152,7 +152,7 @@ class OasisTakeConversion(Conversion):
                          target_token=order.pay_token,
                          rate=Ray(order.pay_amount) / Ray(order.buy_amount),
                          max_source_amount=order.buy_amount,
-                         method=f"opc.take({self.order.order_id})")
+                         method=f"otc.take({self.order.order_id})")
 
     def id(self):
         return f"otc.take({self.order.order_id})"
