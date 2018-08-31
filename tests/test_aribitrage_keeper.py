@@ -252,11 +252,13 @@ class TestArbitrageKeeper:
 
         # and
         # [somebody else placed an order on OASIS offering 110 WETH for 100 SKR]
-        deployment.tub.join(Wad.from_number(110)).transact()
-        deployment.otc.approve([deployment.gem, deployment.skr], directly())
+        second_address = Address(deployment.web3.eth.accounts[1])
+
+        deployment.gem.transfer(second_address, Wad.from_number(110)).transact()
         deployment.otc.add_token_pair_whitelist(deployment.skr.address, deployment.gem.address).transact()
-        deployment.otc.make(deployment.gem.address, Wad.from_number(110), deployment.skr.address, Wad.from_number(100)).transact()
-        assert deployment.skr.total_supply() == Wad.from_number(110)
+        deployment.otc.approve([deployment.gem, deployment.skr], directly(from_address=second_address))
+        deployment.otc.make(deployment.gem.address, Wad.from_number(110), deployment.skr.address, Wad.from_number(100)).transact(from_address=second_address)
+        assert deployment.skr.total_supply() == Wad.from_number(0)
         assert len(deployment.otc.get_orders()) == 1
 
         # when
@@ -269,7 +271,7 @@ class TestArbitrageKeeper:
 
         # and
         # [the total supply of SKR has increased, so we know the keeper did call join('100.0')]
-        assert deployment.skr.total_supply() == Wad.from_number(210)
+        assert deployment.skr.total_supply() == Wad.from_number(100)
 
     def test_should_identify_arbitrage_against_oasis_and_exit(self, deployment: Deployment):
         # given
@@ -291,11 +293,14 @@ class TestArbitrageKeeper:
 
         # and
         # [somebody else placed an order on OASIS offering 110 SKR for 100 WETH]
+        second_address = Address(deployment.web3.eth.accounts[1])
+
         deployment.gem.mint(Wad.from_number(110)).transact()
         deployment.tub.join(Wad.from_number(110)).transact()
-        deployment.otc.approve([deployment.gem, deployment.skr], directly())
+        deployment.skr.transfer(second_address, Wad.from_number(110)).transact()
         deployment.otc.add_token_pair_whitelist(deployment.skr.address, deployment.gem.address).transact()
-        deployment.otc.make(deployment.skr.address, Wad.from_number(110), deployment.gem.address, Wad.from_number(100)).transact()
+        deployment.otc.approve([deployment.gem, deployment.skr], directly(from_address=second_address))
+        deployment.otc.make(deployment.skr.address, Wad.from_number(110), deployment.gem.address, Wad.from_number(100)).transact(from_address=second_address)
         assert deployment.skr.total_supply() == Wad.from_number(110)
         assert len(deployment.otc.get_orders()) == 1
 
