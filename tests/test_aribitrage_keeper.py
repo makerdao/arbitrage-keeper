@@ -24,7 +24,7 @@ from pymaker.deployment import Deployment
 from pymaker.feed import DSValue
 from pymaker.numeric import Wad, Ray
 from pymaker.transactional import TxManager
-from tests.helper import args, captured_output
+from tests.helper import args, captured_output, time_travel_by
 
 
 class TestArbitrageKeeper:
@@ -315,6 +315,66 @@ class TestArbitrageKeeper:
         # and
         # [the total supply of SKR has decreased, so we know the keeper did call exit('110.0')]
         assert deployment.skr.total_supply() == Wad.from_number(0)
+
+    def test_should_identify_arbitrage_against_oasis_and_boom(self, deployment: Deployment):
+        # given
+        keeper = ArbitrageKeeper(args=args(f"--eth-from {deployment.our_address.address}"
+                                           f" --tub-address {deployment.tub.address}"
+                                           f" --tap-address {deployment.tap.address}"
+                                           f" --oasis-address {deployment.otc.address}"
+                                           f" --base-token {deployment.sai.address}"
+                                           f" --min-profit 100.0 --max-engagement 500000.0"),
+                                 web3=deployment.web3)
+
+        # and
+        # [we generate some Dai surplus available for `boom`]
+        DSValue(web3=deployment.web3, address=deployment.tub.pip()).poke_with_int(Wad.from_number(500).value).transact()
+        deployment.tub.mold_cap(Wad.from_number(10000000000)).transact()
+        deployment.tub.mold_mat(Ray.from_number(1.5)).transact()
+        deployment.tub.mold_axe(Ray.from_number(1.2)).transact()
+        deployment.tub.mold_tax(Ray.from_number(1.0000000001)).transact()
+        deployment.gem.mint(Wad.from_number(1000000)).transact()
+        deployment.tub.join(Wad.from_number(1000000)).transact()
+        deployment.tub.open().transact()
+        deployment.tub.lock(1, Wad.from_number(1000000)).transact()
+        deployment.tub.draw(1, Wad.from_number(250000000)).transact()
+        time_travel_by(deployment.web3, 60*60*24*180)
+        deployment.tub.wipe(1, Wad.from_number(250000000)).transact()
+        print(deployment.tap.joy())
+        assert Wad.from_number(389102) < deployment.tap.joy() < Wad.from_number(389103)
+
+        # and
+        # [we add a boom/bust spread to make calculations a bit more difficult]
+        deployment.tap.mold_gap(Wad.from_number(0.95)).transact()
+        assert deployment.tap.ask(Wad.from_number(1)) == Wad.from_number(475.0)
+        assert deployment.tap.bid(Wad.from_number(1)) == Wad.from_number(525.0)
+
+        # and
+        # [we have lots of SAI to invest]
+        deployment.sai.mint(Wad.from_number(5000000.00)).transact()
+
+        # [we have some SKR to cover rounding errors]
+        deployment.skr.mint(Wad.from_number(0.000000000000000001)).transact()
+
+        # and
+        # [we should now have 389102.xx SAI available for 741.14 SKR on `boom`]
+        # [now lets pretend somebody else placed an order on OASIS offering 1000 GEM for 500000 SAI]
+        second_address = Address(deployment.web3.eth.accounts[1])
+
+        deployment.gem.mint(Wad.from_number(1000)).transact()
+        deployment.gem.transfer(second_address, Wad.from_number(1000)).transact()
+        deployment.otc.approve([deployment.sai, deployment.gem], directly(from_address=second_address))
+        deployment.otc.make(deployment.gem.address, Wad.from_number(1000), deployment.sai.address, Wad.from_number(500000)).transact(from_address=second_address)
+        assert len(deployment.otc.get_orders()) == 1
+
+        # when
+        keeper.approve()
+        keeper.process_block()
+
+        # and
+        # [the amount of surplus is almost zero, so we know the keeper did call boom()]
+        # [the inequality below is to cater for rounding errors]
+        assert deployment.tap.joy() < Wad.from_number(0.1)
 
     def test_should_identify_arbitrage_against_oasis_and_bust(self, deployment: Deployment):
         # given
