@@ -44,7 +44,7 @@ def our_address():
 
 def test_should_return_empty_string_when_no_transfers():
     # expect
-    assert TransferFormatter().format([]) == ""
+    assert TransferFormatter().format([], lambda a: str(a)) == ""
 
 
 def test_should_format_single_transfer(token1, some_address):
@@ -52,7 +52,7 @@ def test_should_format_single_transfer(token1, some_address):
     transfer = Transfer(token1, some_address, some_address, Wad.from_number(105))
 
     # expect
-    assert TransferFormatter().format([transfer]) == "105.000000000000000000 0x0101010101010101010101010101010101010101"
+    assert TransferFormatter().format([transfer], lambda a: str(a)) == "105.000000000000000000 0x0101010101010101010101010101010101010101"
 
 
 def test_should_format_two_different_tokens(token1, token2, some_address):
@@ -61,7 +61,7 @@ def test_should_format_two_different_tokens(token1, token2, some_address):
     transfer2 = Transfer(token2, some_address, some_address, Wad.from_number(17))
 
     # expect
-    assert TransferFormatter().format([transfer1, transfer2]) \
+    assert TransferFormatter().format([transfer1, transfer2], lambda a: str(a)) \
         == "105.000000000000000000 0x0101010101010101010101010101010101010101 and 17.000000000000000000 0x0202020202020202020202020202020202020202"
 
 
@@ -71,7 +71,7 @@ def test_should_format_net_balances(token1, our_address, some_address):
     transfer2 = Transfer(token1, some_address, our_address, Wad.from_number(17))
 
     # expect
-    assert TransferFormatter().format_net([transfer1, transfer2], our_address) \
+    assert TransferFormatter().format_net([transfer1, transfer2], our_address, lambda a: str(a)) \
         == "2.000000000000000000 0x0101010101010101010101010101010101010101"
 
 
@@ -82,7 +82,7 @@ def test_should_format_net_balances_if_multiple_transfers(token1, our_address, s
     transfer3 = Transfer(token1, some_address, our_address, Wad.from_number(3.5))
 
     # expect
-    assert TransferFormatter().format_net([transfer1, transfer2, transfer3], our_address) \
+    assert TransferFormatter().format_net([transfer1, transfer2, transfer3], our_address, lambda a: str(a)) \
         == "5.500000000000000000 0x0101010101010101010101010101010101010101"
 
 
@@ -93,7 +93,7 @@ def test_should_format_net_balances_excluding_alien_transfers(token1, our_addres
     transfer3 = Transfer(token1, some_address, some_address, Wad.from_number(100))
 
     # expect
-    assert TransferFormatter().format_net([transfer1, transfer2, transfer3], our_address) \
+    assert TransferFormatter().format_net([transfer1, transfer2, transfer3], our_address, lambda a: str(a)) \
         == "2.500000000000000000 0x0101010101010101010101010101010101010101"
 
 
@@ -104,7 +104,7 @@ def test_should_format_net_balances_excluding_transfers_between_us(token1, our_a
     transfer3 = Transfer(token1, our_address, our_address, Wad.from_number(50))
 
     # expect
-    assert TransferFormatter().format_net([transfer1, transfer2, transfer3], our_address) \
+    assert TransferFormatter().format_net([transfer1, transfer2, transfer3], our_address, lambda a: str(a)) \
         == "2.500000000000000000 0x0101010101010101010101010101010101010101"
 
 
@@ -116,7 +116,7 @@ def test_should_format_net_balances_for_more_than_one_token(token1, token2, our_
     transfer4 = Transfer(token2, some_address, our_address, Wad.from_number(100))
 
     # expect
-    assert TransferFormatter().format_net([transfer1, transfer2, transfer3, transfer4], our_address) \
+    assert TransferFormatter().format_net([transfer1, transfer2, transfer3, transfer4], our_address, lambda a: str(a)) \
         == "2.000000000000000000 0x0101010101010101010101010101010101010101 and 97.500000000000000000 0x0202020202020202020202020202020202020202"
 
 
@@ -128,7 +128,7 @@ def test_should_not_include_zeros_in_net_balances(token1, token2, our_address, s
     transfer4 = Transfer(token2, some_address, our_address, Wad.from_number(22.5))
 
     # expect
-    assert TransferFormatter().format_net([transfer1, transfer2, transfer3, transfer4], our_address) \
+    assert TransferFormatter().format_net([transfer1, transfer2, transfer3, transfer4], our_address, lambda a: str(a)) \
         == "2.000000000000000000 0x0101010101010101010101010101010101010101"
 
 
@@ -137,6 +137,6 @@ def test_support_iterators(token1, some_address):
     transfer = Transfer(token1, some_address, some_address, Wad.from_number(11.5))
 
     # expect
-    assert TransferFormatter().format(iter([transfer])) == "11.500000000000000000 0x0101010101010101010101010101010101010101"
+    assert TransferFormatter().format(iter([transfer]), lambda a: str(a)) == "11.500000000000000000 0x0101010101010101010101010101010101010101"
 
 
