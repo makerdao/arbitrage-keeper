@@ -196,7 +196,9 @@ class ArbitrageKeeper:
 
     def print_opportunity(self, opportunity: Sequence):
         """Print the details of the opportunity."""
-        self.logger.info(f"Opportunity with profit={opportunity.profit(self.base_token.address)} {self.base_token.address}")
+        self.logger.info(f"Opportunity with id={opportunity.id()},"
+                         f" profit={opportunity.profit(self.base_token.address)} {self.base_token.address}")
+
         for index, conversion in enumerate(opportunity.steps, start=1):
             self.logger.info(f"Step {index}/{len(opportunity.steps)}:"
                              f" from {conversion.source_amount} {conversion.source_token}"

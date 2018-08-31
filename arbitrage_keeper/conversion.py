@@ -54,6 +54,9 @@ class TubJoinConversion(Conversion):
                          max_source_amount=Wad.from_number(1000000),  #1 mio ETH = infinity ;)
                          method="tub.join()")
 
+    def id(self):
+        return f"tub.join()"
+
     def name(self):
         return f"tub.join('{self.source_amount}')"
 
@@ -69,6 +72,9 @@ class TubExitConversion(Conversion):
                          rate=Ray(tub.bid(Wad.from_number(1))),
                          max_source_amount=Wad.from_number(1000000),  #1 mio SKR = infinity ;)
                          method="tub.exit()")
+
+    def id(self):
+        return f"tub.exit()"
 
     def name(self):
         return f"tub.exit('{self.source_amount}')"
@@ -95,6 +101,9 @@ class TubBoomConversion(Conversion):
     def boomable_amount_in_skr(self, tap: Tap):
         # we deduct 0.000001 in order to avoid rounding errors
         return Wad.max(Wad(self.boomable_amount_in_sai(tap) / (tap.bid(Wad.from_number(1)))) - Wad.from_number(0.000001), Wad.from_number(0))
+
+    def id(self):
+        return f"tub.boom()"
 
     def name(self):
         return f"tub.boom('{self.source_amount}')"
@@ -125,6 +134,9 @@ class TubBustConversion(Conversion):
 
         return Wad.max(bustable_woe, bustable_fog, Wad.from_number(0))
 
+    def id(self):
+        return f"tub.bust()"
+
     def name(self):
         return f"tub.bust('{self.target_amount}')"
 
@@ -141,6 +153,9 @@ class OasisTakeConversion(Conversion):
                          rate=Ray(order.pay_amount) / Ray(order.buy_amount),
                          max_source_amount=order.buy_amount,
                          method=f"opc.take({self.order.order_id})")
+
+    def id(self):
+        return f"otc.bust({self.order.order_id})"
 
     def name(self):
         return f"otc.take({self.order.order_id}, '{self.quantity()}')"

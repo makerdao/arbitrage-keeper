@@ -33,6 +33,9 @@ class Sequence:
         self.steps = list(map(lambda conversion: copy.copy(conversion), conversions))
         self._validate_token_chain()
 
+    def id(self):
+        return "->".join(map(lambda conversion: conversion.id(), self.steps))
+
     def total_rate(self) -> Ray:
         """Calculates the multiplication of all conversion rates forming this sequence.
 
