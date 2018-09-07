@@ -493,8 +493,6 @@ class TestArbitrageKeeper:
         # [we should now have 30 SKR available for 14250 SAI on `bust`]
         # [now lets pretend we placed an order on 0x offering 15250 SAI for 30 GEM]
         # [this will be an arbitrage opportunity which can make the bot earn 1000 SAI]
-        second_address = Address(deployment.web3.eth.accounts[1])
-
         deployment.sai.mint(Wad.from_number(15250)).transact()
         exchange.approve([deployment.sai, deployment.gem], directly())
         zrx_order = exchange.sign_order(exchange.create_order(pay_token=deployment.sai.address,
