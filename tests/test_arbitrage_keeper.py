@@ -415,7 +415,7 @@ class TestArbitrageKeeper:
 
         # and
         # [we should now have 30 SKR available for 14250 SAI on `bust`]
-        # [now lets pretend somebody else placed an order on OASIS offering 15250 SAI for these 30 SKR]
+        # [now lets pretend somebody else placed an order on OASIS offering 15250 SAI for 30 GEM]
         # [this will be an arbitrage opportunity which can make the bot earn 1000 SAI]
         second_address = Address(deployment.web3.eth.accounts[1])
 
