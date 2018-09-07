@@ -14,16 +14,21 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import json
+import time
 
+import pkg_resources
 import pytest
 
 from arbitrage_keeper.arbitrage_keeper import ArbitrageKeeper
 from pymaker import Address
 from pymaker.approval import directly
-from pymaker.deployment import Deployment
+from pymaker.deployment import Deployment, deploy_contract
 from pymaker.feed import DSValue
 from pymaker.numeric import Wad, Ray
+from pymaker.token import ERC20Token
 from pymaker.transactional import TxManager
+from pymaker.zrx import ZrxExchange
 from tests.helper import args, captured_output, time_travel_by
 
 
@@ -432,6 +437,79 @@ class TestArbitrageKeeper:
         # then
         # [the order on Oasis has been taken by the keeper]
         assert len(deployment.otc.get_orders()) == 0
+
+        # and
+        # [the amount of bad debt has decreased, so we know the keeper did call bust('14250.0')]
+        # [the inequality below is to cater for rounding errors]
+        assert deployment.tap.woe() < Wad.from_number(10800.0)
+
+    def test_should_identify_arbitrage_against_0x_and_bust(self, deployment: Deployment):
+        # given
+        # [0x protocol is in place]
+        zrx_token = ERC20Token(web3=deployment.web3, address=deploy_contract(deployment.web3, 'ZRXToken'))
+        token_transfer_proxy_address = deploy_contract(deployment.web3, 'TokenTransferProxy')
+        exchange = ZrxExchange.deploy(deployment.web3, zrx_token.address, token_transfer_proxy_address)
+        deployment.web3.eth.contract(abi=json.loads(pkg_resources.resource_string('pymaker.deployment', f'abi/TokenTransferProxy.abi')))(address=token_transfer_proxy_address.address).transact().addAuthorizedAddress(exchange.address.address)
+
+        # and
+        keeper = ArbitrageKeeper(args=args(f"--eth-from {deployment.our_address.address}"
+                                           f" --tub-address {deployment.tub.address}"
+                                           f" --tap-address {deployment.tap.address}"
+                                           f" --oasis-address {deployment.otc.address}"
+                                           f" --exchange-address {exchange.address}"
+                                           f" --relayer-api-server http://127.0.0.1:9999/sra/v0"
+                                           f" --base-token {deployment.sai.address}"
+                                           f" --min-profit 950.0 --max-engagement 14250.0"),
+                                 web3=deployment.web3)
+
+        # and
+        # [we generate some bad debt available for `bust`]
+        DSValue(web3=deployment.web3, address=deployment.tub.pip()).poke_with_int(Wad.from_number(500).value).transact()
+        deployment.tub.mold_cap(Wad.from_number(1000000)).transact()
+        deployment.tub.mold_mat(Ray.from_number(2.0)).transact()
+        deployment.tub.mold_axe(Ray.from_number(2.0)).transact()
+        deployment.gem.mint(Wad.from_number(100)).transact()
+        deployment.tub.join(Wad.from_number(100)).transact()
+        deployment.tub.open().transact()
+        deployment.tub.lock(1, Wad.from_number(100)).transact()
+        deployment.tub.draw(1, Wad.from_number(25000)).transact()
+        DSValue(web3=deployment.web3, address=deployment.tub.pip()).poke_with_int(Wad.from_number(400).value).transact()
+        deployment.tub.bite(1).transact()
+        DSValue(web3=deployment.web3, address=deployment.tub.pip()).poke_with_int(Wad.from_number(500).value).transact()
+        assert deployment.tap.woe() == Wad.from_number(25000)
+        assert deployment.tap.fog() == Wad.from_number(100)
+
+        # and
+        # [we add a boom/bust spread to make calculations a bit more difficult]
+        deployment.tap.mold_gap(Wad.from_number(0.95)).transact()
+        assert deployment.tap.ask(Wad.from_number(1)) == Wad.from_number(475.0)
+        assert deployment.tap.bid(Wad.from_number(1)) == Wad.from_number(525.0)
+
+        # and
+        # [we have some SKR to cover rounding errors]
+        deployment.skr.mint(Wad.from_number(0.000000000000000001)).transact()
+
+        # and
+        # [we should now have 30 SKR available for 14250 SAI on `bust`]
+        # [now lets pretend we placed an order on 0x offering 15250 SAI for 30 GEM]
+        # [this will be an arbitrage opportunity which can make the bot earn 1000 SAI]
+        second_address = Address(deployment.web3.eth.accounts[1])
+
+        deployment.sai.mint(Wad.from_number(15250)).transact()
+        exchange.approve([deployment.sai, deployment.gem], directly())
+        zrx_order = exchange.sign_order(exchange.create_order(pay_token=deployment.sai.address,
+                                                              pay_amount=Wad.from_number(15250),
+                                                              buy_token=deployment.gem.address,
+                                                              buy_amount=Wad.from_number(30), expiration=int(time.time() + 3600)))
+        keeper.zrx_orders = lambda tokens: [zrx_order]
+
+        # when
+        keeper.approve()
+        keeper.process_block()
+
+        # then
+        # [the 0x order has been taken by the keeper]
+        assert exchange.get_unavailable_buy_amount(zrx_order) == Wad.from_number(30)
 
         # and
         # [the amount of bad debt has decreased, so we know the keeper did call bust('14250.0')]

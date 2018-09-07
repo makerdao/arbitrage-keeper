@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from pymaker import Address
+from pymaker import Address, zrx
 from pymaker.numeric import Wad, Ray
 from pymaker.oasis import SimpleMarket, Order
 from pymaker.sai import Tub, Tap
@@ -178,5 +178,41 @@ class OasisTakeConversion(Conversion):
         # we buy everything as this is probably what we wanted in the first place
         if self.order.pay_amount - quantity < Wad.from_number(0.0000000001):
             quantity = self.order.pay_amount
+
+        return quantity
+
+
+class ZrxFillOrderConversion(Conversion):
+    def __init__(self, exchange: zrx.ZrxExchange, order: zrx.Order):
+        self.exchange = exchange
+        self.order = order
+
+        super().__init__(source_token=order.buy_token,
+                         target_token=order.pay_token,
+                         rate=Ray(order.pay_amount) / Ray(order.buy_amount),
+                         max_source_amount=order.buy_amount - self.exchange.get_unavailable_buy_amount(self.order),
+                         method=f"zrx.fill_order({hash(self.order)})")
+
+    def id(self):
+        return f"zrx.fill_order({hash(self.order)})"
+
+    def name(self):
+        return f"zrx.fill_order({hash(self.order)}, '{self.quantity()}')"
+
+    def transact(self):
+        return self.exchange.fill_order(self.order, self.quantity())
+
+    def quantity(self):
+        quantity = self.source_amount
+
+        # if by any chance rounding makes us want to sell more quantity than is possible,
+        # we just buy the whole lot
+        if quantity > self.order.buy_amount:
+            quantity = self.order.buy_amount
+
+        # if by any chance rounding makes us want to buy only slightly less than the possible lot,
+        # we buy everything as this is probably what we wanted in the first place
+        if self.order.buy_amount - quantity < Wad.from_number(0.0000000001):
+            quantity = self.order.buy_amount
 
         return quantity

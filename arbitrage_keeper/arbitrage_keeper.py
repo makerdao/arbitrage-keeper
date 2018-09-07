@@ -18,11 +18,12 @@
 import argparse
 import logging
 import sys
+import time
 from typing import List
 
 from web3 import Web3, HTTPProvider
 
-from arbitrage_keeper.conversion import Conversion, OasisTakeConversion
+from arbitrage_keeper.conversion import Conversion, OasisTakeConversion, ZrxFillOrderConversion
 from arbitrage_keeper.conversion import TubBoomConversion, TubBustConversion, TubExitConversion, TubJoinConversion
 from arbitrage_keeper.opportunity import OpportunityFinder, Sequence
 from arbitrage_keeper.transfer_formatter import TransferFormatter
@@ -35,6 +36,7 @@ from pymaker.oasis import MatchingMarket
 from pymaker.sai import Tub, Tap
 from pymaker.token import ERC20Token
 from pymaker.transactional import TxManager
+from pymaker.zrx import ZrxExchange, ZrxRelayerApi
 
 
 class ArbitrageKeeper:
@@ -63,11 +65,20 @@ class ArbitrageKeeper:
         parser.add_argument("--tap-address", type=str, required=True,
                             help="Ethereum address of the Tap contract")
 
+        parser.add_argument("--exchange-address", type=str,
+                            help="Ethereum address of the 0x Exchange contract")
+
         parser.add_argument("--oasis-address", type=str, required=True,
                             help="Ethereum address of the OasisDEX contract")
 
         parser.add_argument("--oasis-support-address", type=str, required=False,
                             help="Ethereum address of the OasisDEX support contract")
+
+        parser.add_argument("--relayer-api-server", type=str,
+                            help="Address of the 0x Relayer API")
+
+        parser.add_argument("--relayer-per-page", type=int, default=100,
+                            help="Number of orders to fetch per one page from the 0x Relayer API (default: 100)")
 
         parser.add_argument("--tx-manager", type=str,
                             help="Ethereum address of the TxManager contract to use for multi-step arbitrage")
@@ -101,6 +112,11 @@ class ArbitrageKeeper:
         self.gem = ERC20Token(web3=self.web3, address=self.tub.gem())
         self.sai = ERC20Token(web3=self.web3, address=self.tub.sai())
         self.skr = ERC20Token(web3=self.web3, address=self.tub.skr())
+
+        self.zrx_exchange = ZrxExchange(web3=self.web3, address=Address(self.arguments.exchange_address)) \
+            if self.arguments.exchange_address is not None else None
+        self.zrx_relayer_api = ZrxRelayerApi(exchange=self.zrx_exchange, api_server=self.arguments.relayer_api_server) \
+            if self.arguments.relayer_api_server is not None else None
 
         self.otc = MatchingMarket(web3=self.web3,
                                   address=Address(self.arguments.oasis_address),
@@ -139,6 +155,8 @@ class ArbitrageKeeper:
         self.tub.approve(approval_method)
         self.tap.approve(approval_method)
         self.otc.approve([self.gem, self.sai, self.skr], approval_method)
+        if self.zrx_exchange:
+            self.zrx_exchange.approve([self.gem, self.sai], approval_method)
         if self.tx_manager:
             self.tx_manager.approve([self.gem, self.sai, self.skr], directly(gas_price=self.gas_price()))
 
@@ -174,9 +192,26 @@ class ArbitrageKeeper:
     def otc_conversions(self, tokens) -> List[Conversion]:
         return list(map(lambda order: OasisTakeConversion(self.otc, order), self.otc_orders(tokens)))
 
+    def zrx_orders(self, tokens):
+        if self.zrx_exchange is None or self.zrx_relayer_api is None:
+            return []
+
+        orders = []
+
+        for token1 in tokens:
+            for token2 in tokens:
+                if token1 != token2:
+                    orders = orders + self.zrx_relayer_api.get_orders(token1, token2)
+
+        return list(filter(lambda order: order.expiration <= time.time(), orders))
+
+    def zrx_conversions(self, tokens) -> List[Conversion]:
+        return list(map(lambda order: ZrxFillOrderConversion(self.zrx_exchange, order), self.zrx_orders(tokens)))
+
     def all_conversions(self):
         return self.tub_conversions() + \
-               self.otc_conversions([self.sai.address, self.skr.address, self.gem.address])
+               self.otc_conversions([self.sai.address, self.skr.address, self.gem.address]) + \
+               self.zrx_conversions([self.sai.address, self.gem.address])
 
     def process_block(self):
         """Callback called on each new block.
