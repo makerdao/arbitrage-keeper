@@ -21,7 +21,7 @@ be more than three.
 
 Steps can be executed sequentially (each one as a separate Ethereum
 transaction, checking if one has been successful before executing the next
-one) or in one ago. The latter method requires a `TxManager` contract deployed,
+one) or in one go. The latter method requires a `TxManager` contract deployed,
 its address has to be passed as the `--tx-manager` argument. Also the `TxManager`
 contract has to be owned by the account the keeper operates from.
 
