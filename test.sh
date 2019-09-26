@@ -12,4 +12,4 @@ TEST_RESULT=$?
 # Cleanup
 pkill -P $GANACHE_PID
 
-exit $TEST_RESULTu
+exit $TEST_RESULT
