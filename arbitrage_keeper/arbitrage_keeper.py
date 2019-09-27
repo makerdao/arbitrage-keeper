@@ -30,6 +30,7 @@ from arbitrage_keeper.transfer_formatter import TransferFormatter
 from pymaker import Address
 from pymaker.approval import via_tx_manager, directly
 from pymaker.gas import DefaultGasPrice, FixedGasPrice
+from pymaker.keys import register_keys
 from pymaker.lifecycle import Lifecycle
 from pymaker.numeric import Wad, Ray
 from pymaker.oasis import MatchingMarket
@@ -58,6 +59,9 @@ class ArbitrageKeeper:
 
         parser.add_argument("--eth-from", type=str, required=True,
                             help="Ethereum account from which to send transactions")
+
+        parser.add_argument("--eth-key", type=str, nargs='*',
+                            help="Ethereum private key(s) to use (e.g. 'key_file=aaa.json,pass_file=aaa.pass')")
 
         parser.add_argument("--tub-address", type=str, required=True,
                             help="Ethereum address of the Tub contract")
@@ -106,7 +110,9 @@ class ArbitrageKeeper:
         self.web3 = kwargs['web3'] if 'web3' in kwargs else Web3(HTTPProvider(endpoint_uri=f"http://{self.arguments.rpc_host}:{self.arguments.rpc_port}",
                                                                               request_kwargs={"timeout": self.arguments.rpc_timeout}))
         self.web3.eth.defaultAccount = self.arguments.eth_from
+        register_keys(self.web3, self.arguments.eth_key)
         self.our_address = Address(self.arguments.eth_from)
+
         self.tub = Tub(web3=self.web3, address=Address(self.arguments.tub_address))
         self.tap = Tap(web3=self.web3, address=Address(self.arguments.tap_address))
         self.gem = ERC20Token(web3=self.web3, address=self.tub.gem())
