@@ -1,6 +1,6 @@
 # arbitrage-keeper
 
-[![Build Status](https://travis-ci.org/makerdao/arbitrage-keeper.svg?branch=master)](https://travis-ci.org/makerdao/arbitrage-keeper)
+![Build Status](https://github.com/makerdao/arbitrage-keeper/actions/workflows/.github/workflows/tests.yaml/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/makerdao/arbitrage-keeper/branch/master/graph/badge.svg)](https://codecov.io/gh/makerdao/arbitrage-keeper)
 
 The _DAI Stablecoin System_ incentivizes external agents, called _keepers_,

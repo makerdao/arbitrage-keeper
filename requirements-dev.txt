@@ -5,3 +5,4 @@ pytest-cov == 2.5.1
 pytest-mock == 1.6.3
 pytest-timeout == 1.2.1
 asynctest == 0.11.1
+attrs==19.1.0
